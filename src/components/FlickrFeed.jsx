@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import jsonp from "jsonp";
 
-const popularTags = ["nature", "animals", "landscape", "city", "travel", "art", "technology"]; // Add more popular tags as needed
+const popularTags = ["nature", "animals", "landscape", "city", "travel", "art", "technology"]; 
 
 const FlickrFeed = () => {
   const [photos, setPhotos] = useState([]);
@@ -27,7 +27,7 @@ const FlickrFeed = () => {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       fetchPhotos(searchTerm);
-    }, 500); // Debounce the search input
+    }, 500); 
     return () => clearTimeout(timeoutId);
   }, [searchTerm]);
 
