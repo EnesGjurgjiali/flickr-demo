@@ -8,8 +8,12 @@ const FlickrFeed = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchPhotos = (tags = "") => {
+  const itemsPerPage = 10; // Number of photos per page
+
+  const fetchPhotos = (tags = "", page = 1) => {
     setLoading(true);
     const url = `https://www.flickr.com/services/feeds/photos_public.gne?format=json&tags=${tags}&jsoncallback=JSONP_CALLBACK`;
 
@@ -19,17 +23,21 @@ const FlickrFeed = () => {
         setLoading(false);
         return;
       }
-      setPhotos(data.items);
+      const startIndex = (page - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const paginatedPhotos = data.items.slice(startIndex, endIndex);
+      setPhotos(paginatedPhotos);
+      setTotalPages(Math.ceil(data.items.length / itemsPerPage)); // Calculate total pages
       setLoading(false);
     });
   };
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      fetchPhotos(searchTerm);
+      fetchPhotos(searchTerm, currentPage);
     }, 500); 
     return () => clearTimeout(timeoutId);
-  }, [searchTerm]);
+  }, [searchTerm, currentPage]);
 
   useEffect(() => {
     if (searchTerm) {
@@ -45,6 +53,11 @@ const FlickrFeed = () => {
   const handleSuggestionClick = (tag) => {
     setSearchTerm(tag);
     setSuggestions([]); // Clear suggestions after selection
+    setCurrentPage(1); // Reset to the first page when changing the tag
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -84,6 +97,21 @@ const FlickrFeed = () => {
             </div>
           ))
         )}
+      </div>
+      <div className="pagination">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => handlePageChange(currentPage - 1)}
+        >
+          Previous
+        </button>
+        <span>Page {currentPage} of {totalPages}</span>
+        <button
+          disabled={currentPage === totalPages}
+          onClick={() => handlePageChange(currentPage + 1)}
+        >
+          Next
+        </button>
       </div>
     </div>
   );
